@@ -1,0 +1,20 @@
+name: Terraform Deployment
+
+on: workflow_dispatch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+        name: Clone repository
+
+      - uses: hashicorp/setup-terraform@v4
+        name: Install Terraform
+
+      - uses: azure/login@v3
+        with:
+          subscription-id:
