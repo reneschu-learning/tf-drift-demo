@@ -1,5 +1,5 @@
 locals {
   location = "westeurope"
-  prefix = "rs"
-  name = "driftdemo"
+  prefix   = "rs"
+  name     = "driftdemo"
 }

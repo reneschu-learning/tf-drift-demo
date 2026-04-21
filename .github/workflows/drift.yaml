@@ -1,4 +1,4 @@
-name: Terraform Deployment
+name: Terraform Drift Detection
 
 on: workflow_dispatch
 
@@ -7,6 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      issues: write
       id-token: write
     steps:
       - uses: actions/checkout@v6
@@ -23,13 +24,25 @@ jobs:
         name: Log in to Azure
 
       - run: |
+          set +e
           terraform init
-          terraform plan -out tfplan
+          terraform plan -out tfplan -detailed-exitcode
+          plan_exit_code=$?
+          echo "exit_code=$plan_exit_code" >> $GITHUB_OUTPUT
+        id: tfplan
+        name: Detect drift
+
+      - run: |
           terraform show -json tfplan > tfplan.tfgraph
-          terraform apply -auto-approve tfplan
-        name: Plan and apply
+
+          gh issue create -t ":rotating_light: Infrastructure drift detected!" -b "Infrastructure drift was detected in workflow run https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        if: steps.tfplan.outputs.exit_code == '2'
+        name: Create Terraform graph and drift issue
+        env:
+          GH_TOKEN: ${{ github.token }}
       
       - uses: actions/upload-artifact@v7
+        if: steps.tfplan.outputs.exit_code == '2'
         with:
           path: tfplan*
           name: plan
