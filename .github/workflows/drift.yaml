@@ -29,8 +29,13 @@ jobs:
           terraform plan -out tfplan -detailed-exitcode
           plan_exit_code=$?
           echo "exit_code=$plan_exit_code" >> $GITHUB_OUTPUT
+          echo "Exit code: $plan_exit_code"
         id: tfplan
         name: Detect drift
+
+      - run: |
+          echo "Exit code output: ${{ steps.tfplan.outputs.exit_code }}"
+        name: Show exit code
 
       - run: |
           terraform show -json tfplan > tfplan.tfgraph
