@@ -3,7 +3,7 @@ name: Terraform Drift Detection
 on: workflow_dispatch
 
 jobs:
-  deploy:
+  detect-drift:
     runs-on: ubuntu-latest
     permissions:
       contents: read
